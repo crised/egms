@@ -1,4 +1,4 @@
-anpackage e.app;
+package e.app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
