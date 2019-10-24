@@ -12,3 +12,4 @@
 /captures
 .externalNativeBuild
 .cxx
+egms/src/androidTest/java/e/gms/lib/ExampleInstrumentedTest.java
