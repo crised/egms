@@ -2,19 +2,47 @@ package e.gms.lib.auth;
 
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import e.gms.lib.utils.Consts;
+import e.gms.lib.utils.EGmsLibException;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Authentication {
 
     private static final String TAG = Authentication.class.getName();
+
+    /**
+     * Blocking method
+     *
+     * @param oauth
+     * @return
+     */
+    // TODO: Test this.
+    // TODO: Consider making it async, with a callback parameter.
+    // Similar to RetrieveRtToken
+    public static Map<String, String> getFirstResponseSync(String oauth) {
+        Map<String, String> responseMap = null;
+        Request request = buildAuthRequest(buildBody(buildStringRequestBody(oauth)));
+        OkHttpClient client = new OkHttpClient();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200) responseMap = parseResponse(response.body().string());
+            else throw new EGmsLibException("Could not authenticate");
+            if (responseMap.size() < 2) throw new EGmsLibException("Got authentication error");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return responseMap;
+    }
 
 
     public static Request buildAuthRequest(RequestBody body) {
@@ -37,7 +65,7 @@ public class Authentication {
     }
 
 
-    public static String buildRequestBody(String oauth) {
+    public static String buildStringRequestBody(String oauth) {
         StringBuilder sb = new StringBuilder();
         sb.append(pair(Consts.ADD_ACCOUNT, Consts.ANDROID_TRUE));
         sb.append(pair(Consts.ANDROID_ID, 0));
