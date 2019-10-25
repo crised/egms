@@ -27,6 +27,8 @@ public final class Consts {
     public static final String GOOGLE_PLAY_VERSION_VALUE = "17785000";
     public static final String ANDROID_TRUE = "1";
     public static final String ANDROID_FALSE = "0";
+    public static final String SYSTEM_PARTITION = "system_partition";
+
 
 
     public static final String AUTH_REQUEST_URL = "https://android.googleapis.com/auth";
@@ -38,5 +40,9 @@ public final class Consts {
 
     public static final String HTTP_HEADER_NAME_CONTENT_TYPE = "Content-type";
     public static final String HTTP_HEADER_VALUE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+
+    // Google Response Keys
+    public static final String GOOGLE_RESPONSE_AUTH_KEY = "Auth";
+
 
 }
