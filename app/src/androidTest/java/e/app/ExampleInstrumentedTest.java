@@ -48,17 +48,18 @@ public class ExampleInstrumentedTest {
         Log.e(TAG, "crised");
         Constructor<GoogleSignInAccount> constructor = GoogleSignInAccount.class.getDeclaredConstructor(int.class, String.class, String.class, String.class, String.class, Uri.class, String.class, long.class, String.class, List.class, String.class, String.class);
         constructor.setAccessible(true);
+
         Object[] args = {0, "", "", "hi@gmail.com", "", Uri.EMPTY, "", 0L, "",
                 new ArrayList<Scope>() {
                 }, "", ""};
-        GoogleSignInAccount googleSignInAccount = constructor.newInstance(args);
-        Log.d(TAG, googleSignInAccount.getEmail()); // worked'
+        GoogleSignInAccount source = constructor.newInstance(args);
+        Log.d(TAG, source.getEmail()); // worked'
         Parcel parcel = Parcel.obtain();         //~ object written is a return value from AIDL. 1. writeToParcel may be 0 or 1.
 //        googleSignInAccount.writeToParcel(parcel, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-        googleSignInAccount.writeToParcel(parcel, 0);
+        source.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
-        GoogleSignInAccount retrieved = GoogleSignInAccount.CREATOR.createFromParcel(parcel);
-        Log.d(TAG, retrieved.getEmail()); // worked'
+        GoogleSignInAccount dest = GoogleSignInAccount.CREATOR.createFromParcel(parcel);
+        assertEquals(source.getEmail(),dest.getEmail());
 
 
     }
