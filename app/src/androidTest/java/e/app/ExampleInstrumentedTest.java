@@ -8,12 +8,16 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Scope;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -41,7 +45,7 @@ public class ExampleInstrumentedTest {
     }
 
 
-    @Test
+    //    @Test
     public void tinkerWithGoogleSignInAccount() throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException, URISyntaxException {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -59,12 +63,13 @@ public class ExampleInstrumentedTest {
         source.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
         GoogleSignInAccount dest = GoogleSignInAccount.CREATOR.createFromParcel(parcel);
-        assertEquals(source.getEmail(),dest.getEmail());
+        assertEquals(source.getEmail(), dest.getEmail());
+        parcel.recycle();
 
 
     }
 
-    @Test
+    //    @Test
     public void parcelableSimpleFlow() {
         int value = 92;
         Parcel parcel = Parcel.obtain();
@@ -73,7 +78,7 @@ public class ExampleInstrumentedTest {
         assertEquals(value, parcel.readInt());
     }
 
-    @Test
+    //    @Test
     public void parcelableFlow() {
         String test = "foo";
         ParcelableExample source = new ParcelableExample(test);
@@ -82,5 +87,27 @@ public class ExampleInstrumentedTest {
         parcel.setDataPosition(0); // Important
         ParcelableExample dest = ParcelableExample.CREATOR.createFromParcel(parcel);
         assertEquals(test, dest.myString);
+    }
+
+    public void getAdsInfo() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Log.d(TAG, "About to call Google Play Services");
+        try {
+            AdvertisingIdClient.Info info = AdvertisingIdClient.getAdvertisingIdInfo(appContext);
+            Log.d(TAG, "Advertising client info: " + info.toString()); //{b92bb45d-0ea9-4ae4-b128-89b65f57b665}false
+        } catch (IOException | GooglePlayServicesNotAvailableException | GooglePlayServicesRepairableException e) {
+            Log.e(TAG, "Exception!");
+        }
+        Log.d(TAG, "finished");
+    }
+
+    @Test
+    public void adsFlow() {
+        new Thread() {
+            @Override
+            public void run() {
+                getAdsInfo();
+            }
+        }.run();
     }
 }
