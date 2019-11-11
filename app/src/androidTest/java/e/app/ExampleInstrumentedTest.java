@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +102,7 @@ public class ExampleInstrumentedTest {
         Log.d(TAG, "finished");
     }
 
-    @Test
+    //    @Test
     public void adsFlow() {
         new Thread() {
             @Override
@@ -109,5 +110,39 @@ public class ExampleInstrumentedTest {
                 getAdsInfo();
             }
         }.run();
+    }
+
+    @Test
+    public void getServiceManagerInfo() {
+
+        try {
+            Class serviceManager = Class.forName("android.os.ServiceManager");
+            Method[] serviceManagerMethods = serviceManager.getDeclaredMethods();
+            for (Method method : serviceManagerMethods) {
+                Log.d(TAG, method.getName());
+                method.setAccessible(true);
+            }
+            Method getService = serviceManager.getMethod("getService", new Class[]{String.class});
+            Method checkService = serviceManager.getMethod("checkService", new Class[]{String.class});
+            Method listServices = serviceManager.getMethod("listServices", new Class[]{});
+//            Object result = listServices.invoke(serviceManager, new Object[]{Context.AUDIO_SERVICE}))
+            Object result = listServices.invoke(serviceManager, new Object[]{});
+            if (result != null) {
+                String[] systemServices = (String[]) result;
+                for (String serviceName : systemServices) {
+                    Log.d(TAG, serviceName);
+                }
+            }
+//            if (result != null) {
+//                IBinder binder = (IBinder) result;
+//
+//
+//            }
+        } catch
+        (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException
+                        e) {
+            Log.e(TAG, "Could't found Service Manager");
+        }
+
     }
 }
