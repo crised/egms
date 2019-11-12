@@ -7,16 +7,15 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.ads.identifier.internal.IAdvertisingIdService;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Scope;
@@ -161,7 +160,16 @@ public class ExampleInstrumentedTest {
             Log.d(TAG, "onServiceConnected");
             Log.d(TAG, name.flattenToString());
             Log.d(TAG, name.getClassName());
+            Log.d(TAG, name.getPackageName());
             Utils.logIBinder(TAG, iBinder);
+            IAdvertisingIdService iAdvertisingIdService = IAdvertisingIdService.Stub.asInterface(iBinder);
+            try {
+                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.getAdvertisingId());
+//                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.generateAdvertisingId("com.google.android.gms.ads.identifier"));
+                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.getAdvertisingId());
+            } catch (RemoteException e) {
+                Log.e(TAG, e.getMessage());
+            }
             Log.d(TAG, "done");
 
         }
@@ -172,7 +180,7 @@ public class ExampleInstrumentedTest {
         }
     };
 
-    //    @Test
+    @Test
     public void callAdService() throws InterruptedException {
         Log.d(TAG, "Hello");
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -180,35 +188,40 @@ public class ExampleInstrumentedTest {
         Intent intent = new Intent();
         String signInService = "com.google.android.gms.auth.api.signin.service.START";
         String identifierService = "com.google.android.gms.ads.identifier.service.START";
-        intent.setAction(signInService);
+        intent.setAction(identifierService);
         intent.setPackage("com.google.android.gms");
         appContext.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         appContext.unbindService(serviceConnection);
     }
 
-    @Test
+    //    @Test
     public void getChimeraClass() {
         try {
-            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestEmail()
-                    .build();
-            GoogleSignInClient client = GoogleSignIn.getClient(appContext, gso);
-            Intent signInIntent = client.getSignInIntent();
-            Class serviceManager = Class.forName("com.google.android.gms.chimera.GmsApiService");
-//            Class[] classes = Utils.getClasses("com.google.android.gms");
-//            Log.d(TAG, "Classes length: " + classes.length);
-//            for (Class clazz : classes) {
-//                Log.d(TAG, clazz.getName());
-//            }
-
-
-        } catch (ClassNotFoundException  e) {
+//            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//
+//            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                    .requestEmail()
+//                    .build();
+//            GoogleSignInClient client = GoogleSignIn.getClient(appContext, gso);
+//            Intent signInIntent = client.getSignInIntent();
+//            Class serviceManager = Class.forName("com.google.android.gms.chimera.GmsApiService");
+//            Class serviceManager = Class.forName("android.os.BinderProxy");
+            Class serviceManager = Class.forName("com.google.android.gms.ads.identifier.internal.AdvertisingIdService");
+            Method[] serviceManagerMethods = serviceManager.getDeclaredMethods();
+            for (Method method : serviceManagerMethods) {
+                Log.d(TAG, method.getName());
+                method.setAccessible(true);
+            }
+        } catch (ClassNotFoundException e) {
             // We get class not found exception
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    @Test
+    public void peekPackages() {
+
 
     }
 
