@@ -8,12 +8,8 @@ import android.os.IInterface;
 import android.os.RemoteException;
 import android.util.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class Utils {
@@ -79,38 +75,26 @@ public class Utils {
 
     }
 
-    public static Class[] getClasses(String packageName)
-            throws ClassNotFoundException, IOException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        assert classLoader != null;
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<File>();
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            dirs.add(new File(resource.getFile()));
-        }
-        ArrayList<Class> classes = new ArrayList<Class>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
-        }
-        return classes.toArray(new Class[classes.size()]);
-    }
+    public static Method[] getMethodsAndSetAccesibleFromClass(String TAG, String classname) {
+        Log.d(TAG, "Getting declared methods for class: " + classname);
+//        Class<MyClass> clazz = MyClass.class;
+//        Class type = Class.forName(classname);
 
-    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists()) {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                assert !file.getName().contains(".");
-                classes.addAll(findClasses(file, packageName + "." + file.getName()));
-            } else if (file.getName().endsWith(".class")) {
-                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+//        Class binderProxy = iBinder.getClass();
+//        Log.d(TAG, Arrays.toString(binderProxy.getMethods()));
+        Method[] methods = null;
+        try {
+            Class type = Class.forName(classname);
+            methods = type.getMethods();
+//            methods = type.getDeclaredMethods();
+            for (Method method : methods) {
+                Log.d(TAG, method.getName());
+                method.setAccessible(true);
             }
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, "Class not found!");
         }
-        return classes;
+        Log.d(TAG, "Done getting methods\n");
+        return methods;
     }
 }

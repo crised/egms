@@ -5,20 +5,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.Parcel;
-import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.ads.identifier.internal.IAdvertisingIdService;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.internal.IGmsServiceBroker;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -155,22 +161,31 @@ public class ExampleInstrumentedTest {
     private static ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            Log.d(TAG, "Hi crised");
-
             Log.d(TAG, "onServiceConnected");
-            Log.d(TAG, name.flattenToString());
-            Log.d(TAG, name.getClassName());
-            Log.d(TAG, name.getPackageName());
-            Utils.logIBinder(TAG, iBinder);
-            IAdvertisingIdService iAdvertisingIdService = IAdvertisingIdService.Stub.asInterface(iBinder);
             try {
-                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.getAdvertisingId());
-//                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.generateAdvertisingId("com.google.android.gms.ads.identifier"));
-                Log.d(TAG, "Response from remote object: " + iAdvertisingIdService.getAdvertisingId());
-            } catch (RemoteException e) {
+                Class<?> innerClass = com.google.android.gms.common.internal.IGmsServiceBroker.Stub.class.getDeclaredClasses()[0];
+                Constructor<?> constructor = innerClass.getDeclaredConstructors()[0];
+                constructor.setAccessible(true);
+                IGmsServiceBroker iGmsServiceBroker = (IGmsServiceBroker) constructor.newInstance(iBinder);
+//                iGmsServiceBroker.getService();
+                Log.d(TAG, "done");
+            } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             }
-            Log.d(TAG, "done");
+
+
+            Log.d(TAG, Arrays.toString(com.google.android.gms.common.internal.IGmsServiceBroker.Stub.class.getDeclaredClasses()));
+            Log.d(TAG, Arrays.toString(com.google.android.gms.common.internal.IGmsServiceBroker.Stub.class.getClasses()));
+//            com.google.android.gms.common.internal.IGmsServiceBroker.Stub.class.getDeclaredClasses();
+
+//            Log.d(TAG, name.flattenToString());
+//            Log.d(TAG, name.getClassName());
+//            Log.d(TAG, name.getPackageName());
+//            Utils.logIBinder(TAG, iBinder);
+
+//            sendMessage(iBinder);
+//            Log.d(TAG, Arrays.toString(type.getMethods()));
+
 
         }
 
@@ -180,15 +195,55 @@ public class ExampleInstrumentedTest {
         }
     };
 
+    private static void sendMessage(IBinder iBinder) {
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "In the Runnable :)!");
+            }
+        };
+
+        Handler myHandler = new MyHandler();
+        Messenger messenger = new Messenger(iBinder);
+//            Message message = Message.obtain(myHandler, 0, 0, 0);
+        Message message1 = Message.obtain(myHandler, 7);
+        Message message2 = myHandler.obtainMessage(7);
+        //            Message message = myHandler.obtainMessage(7);
+        try {
+            Log.d(TAG, "Was message sent?" + myHandler.sendEmptyMessage(7));
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+        Log.d(TAG, myHandler.obtainMessage().toString());
+        Log.d(TAG, "Does it has messages back:" + myHandler.hasMessages(7));
+        Log.d(TAG, "Done with message");
+
+    }
+
     @Test
     public void callAdService() throws InterruptedException {
-        Log.d(TAG, "Hello");
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//        com.google.android.gms.common.internal.IGmsServiceBroker.Stub.Stub
+//        Class<?> classType = Class.forName(className);
+//        com.google.android.gms.ads.identifier.internal.IAdvertisingIdService.Stub.asInterface()
+//        Class<com.google.android.gms.common.internal.IGmsServiceBroker.Stub> clazz = com.google.android.gms.common.internal.IGmsServiceBroker.Stub.class;
+//        Log.d(TAG, "crised + :" + clazz.getDeclaredMethods());
 
+//        Class type = IGmsServiceBroker.Stub;
+
+//        Log.d(TAG, Arrays.toString(type.getMethods()));
+
+
+//        Utils.getMethodsAndSetAccesibleFromClass(TAG, "com.google.android.gms.common.internal.IGmsCallbacks$Stub");
+//        Utils.getMethodsAndSetAccesibleFromClass(TAG, "com.google.android.gms.common.internal.IGmsServiceBroker$Stub");
+//        Utils.getMethodsAndSetAccesibleFromClass(TAG, "android.os.BinderProxy");
+
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         Intent intent = new Intent();
         String signInService = "com.google.android.gms.auth.api.signin.service.START";
-        String identifierService = "com.google.android.gms.ads.identifier.service.START";
-        intent.setAction(identifierService);
+        String adsIdentifierService = "com.google.android.gms.ads.identifier.service.START";
+        intent.setAction(signInService);
         intent.setPackage("com.google.android.gms");
         appContext.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         Thread.sleep(2000);
@@ -196,33 +251,26 @@ public class ExampleInstrumentedTest {
     }
 
     //    @Test
-    public void getChimeraClass() {
-        try {
-//            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-//
-//            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                    .requestEmail()
-//                    .build();
-//            GoogleSignInClient client = GoogleSignIn.getClient(appContext, gso);
-//            Intent signInIntent = client.getSignInIntent();
-//            Class serviceManager = Class.forName("com.google.android.gms.chimera.GmsApiService");
-//            Class serviceManager = Class.forName("android.os.BinderProxy");
-            Class serviceManager = Class.forName("com.google.android.gms.ads.identifier.internal.AdvertisingIdService");
-            Method[] serviceManagerMethods = serviceManager.getDeclaredMethods();
-            for (Method method : serviceManagerMethods) {
-                Log.d(TAG, method.getName());
-                method.setAccessible(true);
-            }
-        } catch (ClassNotFoundException e) {
-            // We get class not found exception
-            Log.e(TAG, e.getMessage());
-        }
+    public void tinkerClient() throws Exception {
+        Log.d(TAG, "hi");
+
+        MyAdvertisingClient pine = new MyAdvertisingClient();
+        Log.d(TAG, "hi");
+
+        new MyIGmsClient();
+        Log.d(TAG, "hi");
+
+
     }
 
-    @Test
-    public void peekPackages() {
-
-
+//    @Test
+    public void signInFlow() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        GoogleSignInClient client = GoogleSignIn.getClient(appContext, gso);
+        Intent signInIntent = client.getSignInIntent();
     }
 
 
