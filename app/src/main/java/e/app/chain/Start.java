@@ -14,26 +14,21 @@ public class Start {
     private static final String TAG = Start.class.getName();
 
 
-    public Start(Context appCtx) {
-//        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestEmail()
-//                .build();
-        GoogleSignInOptions.Builder gsoBuilder = new GoogleSignInOptions.Builder();
-        // Below is equivalent to DEFAULT_SIGN_IN
-        gsoBuilder.requestId(); // Adds "openid" Scope to the Set<Scopes>
-        gsoBuilder.requestProfile(); // Adds new Scope("profile") to the set of Scopes.
-        GoogleSignInOptions gso = gsoBuilder.build();
+    public Start(Context ctx) {
+//        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+//        GoogleSignIn.getClient(appCtx, gso); //new GoogleSignInClient(appCtx, gso), GoogleApi<GoogleSignInOption> descendan
+        GoogleSignInOptions gso = CustomBuilder.buildGoogleSignInOptions();
+        Api<GoogleSignInOptions> auth_api = CustomBuilder.buildApiGoogleSignInOptions();
+        GoogleApi.Settings googleApiSettings = CustomBuilder.buildGoogleApiSettings(ctx); //this class has a Status Exception Mapper, Account(null) and looper.
+        GoogleApi<GoogleSignInOptions> googleApi = new GoogleApi<GoogleSignInOptions>(ctx, auth_api, gso, googleApiSettings);
 
-        // Craetes a GoogleApi<GoogleSignInOption> descendant object.
-//        GoogleSignInClient client = GoogleSignIn.getClient(appCtx, gso); //new GoogleSignInClient(appCtx, gso)
-        Api<GoogleSignInOptions> auth_api = Auth.GOOGLE_SIGN_IN_API;
-        ApiExceptionMapper apiExceptionMapper = new ApiExceptionMapper();
-        GoogleApi<GoogleSignInOptions> googleApi = new GoogleApi<GoogleSignInOptions>(appCtx, auth_api, gso, apiExceptionMapper);
-
+//            public GoogleApi(@NonNull Context var1, Api<O> var2, @Nullable O var3, GoogleApi.Settings var4) {
         Log.d(TAG, "Done");
 
 //        new GoogleApi<GoogleSignInOptions>(appCtx,e)
 
 
     }
+
+
 }

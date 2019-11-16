@@ -8,8 +8,8 @@ import android.os.IInterface;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class Utils {
@@ -73,6 +73,22 @@ public class Utils {
         }
         Log.d(TAG, sj.toString());
 
+    }
+
+
+
+    public static Field[] getFields(String className, boolean declared) {
+        Field[] fields = null;
+        try {
+            Class type = Class.forName(className);
+            if (declared) {
+
+            }
+
+        } catch (ClassNotFoundException e) {
+
+        }
+        return fields;
     }
 
     public static Method[] getMethodsAndSetAccesibleFromClass(String TAG, String classname) {
