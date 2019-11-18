@@ -17,12 +17,15 @@ public class ExampleUnitTest {
 
     @Test
     public void reflex() {
-        ReflexPrivateClass reflexPrivateClass = new ReflexPrivateClass();
-        UtilsReflex.getField(reflexPrivateClass, "one", Integer.class);
+        ReflexClass reflexClass = new ReflexClass();
+        UtilsReflex.getField(reflexClass, "one", Integer.class);
         Object[] args = {"first", 2};
         Class<?>[] argTypes = {String.class, Integer.class};
-        String ans = UtilsReflex.callMethod(reflexPrivateClass, String.class, "concatenate", args, argTypes);
+        String ans = UtilsReflex.callMethod(reflexClass, String.class, "concatenate", args, argTypes);
 
+        Class<?>[] argTypes2 = {String.class, Integer.class};
+        Object[] args2 = {"private", -1};
+        System.out.println(UtilsReflex.getInstance(ReflexClass.class, args2, argTypes2, true).toString());
         System.out.println("hello");
     }
 }

@@ -1,6 +1,8 @@
 package e.app;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class UtilsReflex {
@@ -15,21 +17,24 @@ public class UtilsReflex {
             f.setAccessible(true);
             ans = fieldType.cast(f.get(instance));
         } catch (Exception e) {
-
         }
         return ans;
     }
 
-//    public static Method findMethod(Object instance, String methodName) {
-//        try {
-//
-//            instance.getClass().getMethod();
-//
-//        } catch (Exception E) {
-//
-//        }
-//
-//    }
+    public static <T> T getInstance(Class<T> classType, Object[] args,
+                                    Class<?>[] parameterTypes, boolean declared) {
+        Constructor<T> constructor;
+        try {
+            if (declared) constructor = classType.getDeclaredConstructor(parameterTypes);
+            else constructor = classType.getDeclaredConstructor(parameterTypes);
+            constructor.setAccessible(true);
+            T instance = constructor.newInstance(args);
+            return instance;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            return null;
+        }
+    }
+
 
     public static <T> T callMethod(Object instance, Class<T> returnType,
                                    String methodName, Object[] args,
@@ -38,7 +43,7 @@ public class UtilsReflex {
             Method m = instance.getClass().getDeclaredMethod(methodName, parameterTypes);
             m.setAccessible(true);
             return returnType.cast(m.invoke(instance, args));
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             return null;
         }
     }
