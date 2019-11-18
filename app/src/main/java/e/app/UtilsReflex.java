@@ -15,15 +15,15 @@ public class UtilsReflex {
     //TODO: Methods are instance oriented, make them class oriented as well.
 
     public static <T> T getField(Object instance, String fieldName, Class<T> fieldType) {
-        T ans = null;
         try {
             Field f = instance.getClass().getDeclaredField(fieldName);
             if (f == null) f = instance.getClass().getField(fieldName);
             f.setAccessible(true);
-            ans = fieldType.cast(f.get(instance));
+            return fieldType.cast(f.get(instance));
         } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            return null;
         }
-        return ans;
     }
 
     /***
