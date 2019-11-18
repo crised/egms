@@ -1,11 +1,16 @@
 package e.app;
 
+import android.util.Log;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class UtilsReflex {
+
+    private static final String TAG = UtilsReflex.class.getName();
+
 
     //TODO: Methods are instance oriented, make them class oriented as well.
 
@@ -21,8 +26,17 @@ public class UtilsReflex {
         return ans;
     }
 
-    public static <T> T getInstance(Class<T> classType, Object[] args,
-                                    Class<?>[] parameterTypes, boolean declared) {
+    /***
+     * Method to build instances from private Constructors.
+     * @param classType
+     * @param args
+     * @param parameterTypes
+     * @param declared
+     * @param <T>
+     * @return
+     */
+    public static <T> T constructInstance(Class<T> classType, Object[] args,
+                                          Class<?>[] parameterTypes, boolean declared) {
         Constructor<T> constructor;
         try {
             if (declared) constructor = classType.getDeclaredConstructor(parameterTypes);
@@ -31,6 +45,7 @@ public class UtilsReflex {
             T instance = constructor.newInstance(args);
             return instance;
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            Log.e(TAG, e.getMessage());
             return null;
         }
     }

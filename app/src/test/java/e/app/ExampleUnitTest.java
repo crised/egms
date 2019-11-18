@@ -25,7 +25,7 @@ public class ExampleUnitTest {
 
         Class<?>[] argTypes2 = {String.class, Integer.class};
         Object[] args2 = {"private", -1};
-        System.out.println(UtilsReflex.getInstance(ReflexClass.class, args2, argTypes2, true).toString());
+        System.out.println(UtilsReflex.constructInstance(ReflexClass.class, args2, argTypes2, true).toString());
         System.out.println("hello");
     }
 }

@@ -6,10 +6,13 @@ import android.os.Looper;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.internal.ApiExceptionMapper;
 import com.google.android.gms.common.api.internal.GoogleApiManager;
+
+import e.app.UtilsReflex;
 
 public class CustomBuilder {
 
@@ -41,10 +44,12 @@ public class CustomBuilder {
         // Linux Process priority level: -20 highest to 19 (lowest)
         // THREAD_PRIORITY_DEFAULT  = 0
         HandlerThread handlerThread = new HandlerThread("GoogleApiHandler", 9);
+        handlerThread.start();
         Looper looperOfHandlerThread = handlerThread.getLooper();
-//        GoogleApiAvailability googleApiAvailability =
-//        Class type = Class.forName(G);
-        return null;
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        Class<?>[] constructorArgsTypes = {Context.class, Looper.class, GoogleApiAvailability.class};
+        Object[] constructorArgs = {ctx, looperOfHandlerThread, googleApiAvailability};
+        return UtilsReflex.constructInstance(GoogleApiManager.class, constructorArgs, constructorArgsTypes, true);
     }
 
 
